@@ -1,0 +1,25 @@
+# Ignore Perl module build files
+Makefile
+Makefile.old
+blib/
+Build
+_build/
+Build.bat
+pm_to_blib
+*.o
+*.bs
+*.def
+*.exe
+*.obj
+*.dll
+*.pdb
+
+# Ignore logs
+logs/app.log
+
+# Ignore configuration
+config/app_config.yaml
+
+# Ignore test coverage files
+cover_db/
+nytprof.out

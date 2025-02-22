@@ -2,6 +2,4 @@
 use strict;
 use warnings;
 
-print "This is another script.\n";
-
-# Add your script logic here
+print "Hello from another_script.pl!\n";

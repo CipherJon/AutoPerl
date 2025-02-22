@@ -1,23 +1,14 @@
 package AutomatedScriptingApp::Config;
-
 use strict;
 use warnings;
-use YAML::XS qw(LoadFile);
-use Carp;
+use YAML::XS 'LoadFile';
 
 sub new {
     my ($class, $file) = @_;
-    my $self = {
-        file => $file,
-        config => LoadFile($file),
-    };
+    my $self = {};
     bless $self, $class;
-    return $self;
-}
-
-sub get {
-    my ($self, $key) = @_;
-    return $self->{config}{$key} // croak "Key '$key' not found in config";
+    $self->{config} = LoadFile($file);
+    return $self->{config};
 }
 
 1;

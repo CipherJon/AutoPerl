@@ -1,0 +1,22 @@
+=head2 Sat Feb 22 00:55:45 2025: C<Module> L<YAML::LibYAML|YAML::LibYAML>
+
+=over 4
+
+=item *
+
+C<installed into: E:\Git\AutoPerl\local\lib\perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: v0.903.0>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+

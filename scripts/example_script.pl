@@ -2,6 +2,4 @@
 use strict;
 use warnings;
 
-print "This is an example script.\n";
-
-# Add your script logic here
+print "Hello from example_script.pl!\n";

@@ -8,7 +8,7 @@ use File::Basename;
 use Cwd qw(abs_path);
 use Carp qw(croak);
 use File::Find;
-use constant __DIR__ => (File::Spec->splitpath(__FILE__))[1];
+use constant SCRIPT_DIR => (File::Spec->splitpath(__FILE__))[1];
 
 =head1 NAME
 
@@ -60,9 +60,9 @@ sub new {
     my $self = {
         config => $config,
         allowed_paths => [
-            __DIR__ . '/../../scripts',
-            __DIR__ . '/../../config',
-            __DIR__ . '/../../logs'
+            SCRIPT_DIR . '/../../scripts',
+            SCRIPT_DIR . '/../../config',
+            SCRIPT_DIR . '/../../logs'
         ]
     };
     bless $self, $class;
@@ -71,7 +71,7 @@ sub new {
 
 sub run_scripts {
     my ($self) = @_;
-    my $scripts = $self->{config}->{scripts};
+    my $scripts = $self->{config}->get_config->{scripts};
     
     # Validate configuration first
     $self->validate_config();
@@ -150,14 +150,14 @@ sub validate_config {
     }
     
     # Validate scripts array exists and is populated
-    unless (defined $self->{config}->{scripts} &&
-            ref $self->{config}->{scripts} eq 'ARRAY' &&
-            scalar(@{$self->{config}->{scripts}}) > 0) {
+    unless (defined $self->{config}->get_config->{scripts} &&
+            ref $self->{config}->get_config->{scripts} eq 'ARRAY' &&
+            scalar(@{$self->{config}->get_config->{scripts}}) > 0) {
         croak "No scripts defined in configuration";
     }
     
     # Validate each script entry
-    foreach my $script (@{$self->{config}->{scripts}}) {
+    foreach my $script (@{$self->{config}->get_config->{scripts}}) {
         unless (defined $script && ref $script eq 'HASH') {
             croak "Invalid script configuration";
         }
@@ -256,7 +256,7 @@ sub _validate_script_content {
     # Check for suspicious patterns
     foreach my $line (@lines) {
         # Prevent system commands - match only actual command invocations
-        if ($line =~ /(?:
+        if ($line =~ m{
             \b(?:system|exec)\s*\(|  # system() or exec() function calls
             \bfork\s*\(|            # fork() function calls
             \bopen\s*\([^)]*[|>]|   # open() with pipe or redirection
@@ -264,12 +264,12 @@ sub _validate_script_content {
             \b(?:qx|`)\s*[^`]*`|    # Backtick command execution
             \b(?:system|exec)\s+[a-zA-Z]|  # system/exec followed by command
             \b(?:eval|do)\s+['"]\s*[a-zA-Z]  # eval/do with command string
-        )/x) {
+        }x) {
             return 0;
         }
         
         # Prevent file operations outside allowed directories
-        if ($line =~ /(?:^|\s)(?:open|copy|rename|unlink)\s*\([^)]*['"]([^'"]+)['"]/) {
+        if ($line =~ m{(?:^|\s)(?:open|copy|rename|unlink)\s*\([^)]*['"]([^'"]+)['"]}) {
             my $file = $1;
             my $is_allowed = 0;
             foreach my $allowed_path (@{$self->{allowed_paths}}) {
@@ -284,26 +284,26 @@ sub _validate_script_content {
         }
         
         # Prevent network operations - match only actual function calls
-        if ($line =~ /(?:
+        if ($line =~ m{
             \b(?:connect|bind|socket|inet_aton)\s*\(|  # Network function calls
             \b(?:IO::Socket|Net::|LWP::)  # Network-related modules
-        )/x) {
+        }x) {
             return 0;
         }
         
         # Prevent shell command execution - match only actual command execution
-        if ($line =~ /(?:
+        if ($line =~ m{
             \b(?:system|exec|qx|`)\s*[^`]*[;&|]|  # Command with shell operators
             \b(?:eval|do)\s+['"]\s*[a-zA-Z].*[;&|]  # Eval/do with shell operators
-        )/x) {
+        }x) {
             return 0;
         }
         
         # Prevent environment variable manipulation - match only actual manipulation
-        if ($line =~ /(?:
+        if ($line =~ m{
             \b(?:local|our|my)\s+\$ENV\{|  # ENV variable declaration
-            \b\$ENV\{[^}]+\}\s*=/  # ENV variable assignment
-        )/x) {
+            \b\$ENV\{[^\}]+\}\s*=  # ENV variable assignment
+        }x) {
             return 0;
         }
     }
@@ -322,4 +322,4 @@ sub _sanitize_log {
     return $str;
 }
 
-1;
+1; 

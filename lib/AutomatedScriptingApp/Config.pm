@@ -28,7 +28,12 @@ sub new {
         die "Configuration validation failed: $error";
     }
     
-    return $self;
+    return $self;  # Return the blessed object
+}
+
+sub get_config {
+    my ($self) = @_;
+    return $self->{config};
 }
 
 sub validate_config {

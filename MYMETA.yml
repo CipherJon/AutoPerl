@@ -10,13 +10,17 @@ dynamic_config: 0
 generated_by: 'ExtUtils::MakeMaker version 7.46, CPAN::Meta::Converter version 2.150010'
 license: artistic_2
 meta-spec:
-  url: http://search.cpan.org/perldoc?CPAN::Meta::Spec
+  url: https://metacpan.org/pod/CPAN::Meta::Spec
   version: '2'
 name: AutomatedScriptingApp
 no_index:
   directory:
     - t
     - inc
-requires: {}
+requires:
+  Carp: '0'
+  YAML: '1.30'
+  strict: '0'
+  warnings: '0'
 version: '1.0'
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

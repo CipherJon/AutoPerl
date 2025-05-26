@@ -13,12 +13,6 @@ use AutomatedScriptingApp::Config;
 our @EXPORT_OK = qw(log_message log_debug log_error);
 
 # Log configuration
-our $MAX_LOG_SIZE = $AutomatedScriptingApp::Config::MAX_LOG_SIZE;
-our $MAX_BACKUP_FILES = $AutomatedScriptingApp::Config::MAX_BACKUP_FILES;
-our $LOG_DIRECTORY = File::Spec->catdir(dirname(__FILE__), $AutomatedScriptingApp::Config::LOG_DIRECTORY);
-our $LOG_FILE = $AutomatedScriptingApp::Config::LOG_FILE;
-
-# Log levels
 use constant {
     LOG_LEVEL_DEBUG => 0,
     LOG_LEVEL_INFO  => 1,
@@ -50,25 +44,25 @@ sub log_error {
 sub _log_message {
     my ($message, $level) = @_;
     
-    my $log_file = File::Spec->catfile($LOG_DIRECTORY, $LOG_FILE);
+    my $log_file = File::Spec->catfile(AutomatedScriptingApp::Config::LOG_DIRECTORY, AutomatedScriptingApp::Config::LOG_FILE);
     
     try {
         # Create log directory if it doesn't exist
-        if (!-d $LOG_DIRECTORY) {
-            make_path($LOG_DIRECTORY, { mode => 0755 }) or die "Could not create log directory: $!";
+        if (!-d AutomatedScriptingApp::Config::LOG_DIRECTORY) {
+            make_path(AutomatedScriptingApp::Config::LOG_DIRECTORY, { mode => 0755 }) or die "Could not create log directory: $!";
         }
 
         # Check if file exists and needs rotation
-        if (-e $log_file && -s $log_file >= $MAX_LOG_SIZE) {
+        if (-e $log_file && -s $log_file >= AutomatedScriptingApp::Config::MAX_LOG_SIZE) {
             # Rotate logs
             my $datetime = DateTime->now()->strftime("%Y-%m-%d_%H-%M-%S");
-            my $backup_file = File::Spec->catfile($LOG_DIRECTORY, "$LOG_FILE.$datetime");
+            my $backup_file = File::Spec->catfile(AutomatedScriptingApp::Config::LOG_DIRECTORY, AutomatedScriptingApp::Config::LOG_FILE . ".$datetime");
             move($log_file, $backup_file) or die "Could not rotate log file: $!";
 
             # Remove old backup files if necessary
-            my $glob = File::Spec->catfile($LOG_DIRECTORY, "$LOG_FILE.*");
+            my $glob = File::Spec->catfile(AutomatedScriptingApp::Config::LOG_DIRECTORY, AutomatedScriptingApp::Config::LOG_FILE . ".*");
             my @backup_files = glob($glob);
-            if (@backup_files > $MAX_BACKUP_FILES) {
+            if (@backup_files > AutomatedScriptingApp::Config::MAX_BACKUP_FILES) {
                 # Sort by modification time and remove oldest
                 @backup_files = sort { -M $a <=> -M $b } @backup_files;
                 my $removed = pop @backup_files;  # Remove the oldest file (last in sorted array)

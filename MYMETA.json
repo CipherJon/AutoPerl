@@ -32,6 +32,8 @@
       },
       "runtime" : {
          "requires" : {
+            "Carp" : "0",
+            "YAML" : "1.30",
             "strict" : "0",
             "warnings" : "0"
          }
